@@ -117,27 +117,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 poolProgress.style.width = `${Math.min(progressPercent + 1, 100)}%`;
             }
             
-            // Update Difficulty
+            // Update Difficulty (Difficulty increases as pool drains = PH goes down)
             if (miningActive && hashRateSpan) {
-                const noise = Math.sin(now / 5000) * 0.5;
-                const baseHash = 4.2 + noise;
-                hashRateSpan.innerText = `${baseHash.toFixed(2)} PH/s`;
+                const launchDateString = '2026-03-12T18:00:00Z';
+                const launchDate = new Date(launchDateString).getTime();
+                const totalElapsedSinceLaunch = now - launchDate;
+                const globalDrain = (totalElapsedSinceLaunch * NOMINAL_RATE_PER_MS * 12.5);
+                const progressFactor = globalDrain / TOTAL_MINING_REWARDS; 
+                
+                // Base 4.2 PH/s, decreases as pool drains
+                const noise = Math.sin(now / 5000) * 0.3;
+                const difficultyLoss = progressFactor * 2.0; 
+                const currentHash = Math.max(4.2 + noise - difficultyLoss, 0.1);
+                
+                hashRateSpan.innerText = `${currentHash.toFixed(2)} PH/s`;
             }
             
             // Update Milestone & Verification
             const milestoneStatus = document.getElementById('milestone-status');
             const pendingSpan = document.getElementById('pending-real-rewards');
             const hashSpan = document.getElementById('verification-hash');
+            const claimBtn = document.getElementById('claim-rewards');
 
             if (milestoneStatus) {
                 const progress = ((accumulatedRewards / 1000) * 100).toFixed(1);
                 milestoneStatus.innerText = `${progress}% to next tier`;
             }
             if (pendingSpan) pendingSpan.innerText = `${pendingRealRewards} $67`;
-            if (hashSpan && userWallet) {
+            
+            let currentVCode = "---";
+            if (userWallet) {
                 // Verification Code: Simple hash-like string of wallet + pending
-                const vCode = btoa(userWallet.slice(0, 8) + pendingRealRewards).slice(0, 12).toUpperCase();
-                hashSpan.innerText = `67-V-${vCode}`;
+                currentVCode = btoa(userWallet.slice(0, 8) + pendingRealRewards).slice(0, 12).toUpperCase();
+                if (hashSpan) hashSpan.innerText = `67-V-${currentVCode}`;
+            }
+
+            // Claim Button Logic
+            if (claimBtn) {
+                if (pendingRealRewards > 0) {
+                    claimBtn.classList.remove('disabled');
+                    claimBtn.onclick = () => {
+                        const msg = encodeURIComponent(`Hi Admin! I want to claim my rewards.\n\nWallet: ${userWallet}\nPending: ${pendingRealRewards} $67\nID: 67-V-${currentVCode}`);
+                        window.open(`https://t.me/your_telegram_link?text=${msg}`, '_blank');
+                    };
+                } else {
+                    claimBtn.classList.add('disabled');
+                    claimBtn.onclick = null;
+                }
             }
             
             // ... (countdown logic)

@@ -101,6 +101,51 @@ document.addEventListener('DOMContentLoaded', () => {
                     liveRewardsSpan.innerText = "Connect Wallet to Start";
                 }
             }
+
+            // --- NEW: Global Pool & Progress Simulation ---
+            const poolLabel = document.getElementById('pool-label');
+            const poolProgress = document.getElementById('pool-progress');
+            if (poolLabel && poolProgress) {
+                // We simulate that the pool drains globally based on time passed since launch
+                const launchDate = new Date('2026-03-12T18:00:00Z').getTime();
+                const totalElapsed = now - launchDate;
+                
+                // We simulate thousands of miners globally
+                const globalDrain = (totalElapsed * NOMINAL_RATE_PER_MS * 12.5); // Global factor 12.5x nominal
+                const remaining = Math.max(TOTAL_MINING_REWARDS - globalDrain, 0);
+                
+                poolLabel.innerText = `Mining Pool: ${Math.floor(remaining).toLocaleString()} $67 Remaining`;
+                
+                const progressPercent = ((TOTAL_MINING_REWARDS - remaining) / TOTAL_MINING_REWARDS) * 100;
+                poolProgress.style.width = `${Math.min(progressPercent + 1, 100)}%`; // +1 for visible start
+            }
+            
+            // --- NEW: Difficulty / Hash Rate Jitter ---
+            if (miningActive && hashRateSpan) {
+                // Bitcoin difficulty style: Jitter based on "Network Load"
+                const noise = Math.sin(now / 5000) * 0.5; // Sine wave jitter
+                const difficultyFactor = 1.0 + (noise * 0.2); 
+                const baseHash = 4.2 + noise;
+                hashRateSpan.innerText = `${baseHash.toFixed(2)} PH/s`;
+                
+                // Visual Color Shift if "Difficulty" is high
+                if (baseHash > 4.5) {
+                    hashRateSpan.style.color = '#ff3366'; // Reddish for high difficulty
+                } else {
+                    hashRateSpan.style.color = '#00ffcc'; // Standard neon
+                }
+            }
+            
+            // Update Milestone
+            const milestoneStatus = document.getElementById('milestone-status');
+            if (milestoneStatus) {
+                const progress = Math.min((accumulatedRewards / 1000) * 100, 100).toFixed(1);
+                milestoneStatus.innerText = `${progress}% to Goal (1,000 $67)`;
+                if (progress >= 100) {
+                    milestoneStatus.style.color = '#00ffcc';
+                    milestoneStatus.innerText = "GOAL REACHED! Claim in Telegram 🚀";
+                }
+            }
             
             // Update Countdown (Simulated based on Phase 2 start)
             if (halvingSpan) {
@@ -114,8 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 halvingSpan.innerText = `${days}d ${hours}h ${mins}m`;
             }
 
-            // Visual Hash Jitter
-            if (Math.random() > 0.95) updateHashRate();
+            // Visual Hash Jitter removed (handled above)
         }, 100);
     }
 

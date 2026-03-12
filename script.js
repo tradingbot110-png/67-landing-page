@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const TOTAL_MINING_REWARDS = 600000000; // 60% of 1B
     const MINING_TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
     const NOMINAL_RATE_PER_MS = TOTAL_MINING_REWARDS / MINING_TEN_YEARS_MS;
-    const PERSONAL_SHARE_FACTOR = 0.0001; // Simulating that the user is only a small part of the global network
+    const PERSONAL_SHARE_FACTOR = 0.0005; // Balanced for visible movement & scarcity
     const USER_MINING_RATE = NOMINAL_RATE_PER_MS * PERSONAL_SHARE_FACTOR;
     
     // UI Elements
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update UI
             if (liveRewardsSpan) {
                 if (miningActive) {
-                    liveRewardsSpan.innerText = `${accumulatedRewards.toFixed(8)} $67`;
+                    liveRewardsSpan.innerText = `${accumulatedRewards.toFixed(10)} $67`;
                 } else {
                     liveRewardsSpan.innerText = "Connect Wallet to Start";
                 }

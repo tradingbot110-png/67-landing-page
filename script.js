@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const TOTAL_MINING_REWARDS = 600000000; // 60% of 1B
     const MINING_TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
     const NOMINAL_RATE_PER_MS = TOTAL_MINING_REWARDS / MINING_TEN_YEARS_MS;
+    const PERSONAL_SHARE_FACTOR = 0.0001; // Simulating that the user is only a small part of the global network
+    const USER_MINING_RATE = NOMINAL_RATE_PER_MS * PERSONAL_SHARE_FACTOR;
     
     // UI Elements
     const connectBtn = document.getElementById('connect-wallet');
@@ -57,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Calculate offline rewards (simulated catch-up)
         const now = Date.now();
         const offlineTime = now - savedData.lastVisit;
-        const offlineGain = offlineTime * NOMINAL_RATE_PER_MS;
+        const offlineGain = offlineTime * USER_MINING_RATE;
         accumulatedRewards += offlineGain;
         
         miningActive = true;
@@ -82,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const elapsed = now - lastUpdateTimestamp;
             lastUpdateTimestamp = now;
             
-            const gain = elapsed * NOMINAL_RATE_PER_MS;
+            const gain = elapsed * USER_MINING_RATE;
             accumulatedRewards += gain;
             
             // Persist every update

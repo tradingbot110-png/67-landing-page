@@ -114,10 +114,33 @@
 
     <section id="mining" class="mining-section">
         <div class="container">
-            <h2>Mining Simulation</h2>
-            <p class="section-desc">Connect your wallet to start simulating the $67 scarcity protocol rewards.</p>
+            <h2>$67 Mining Protocol</h2>
             
-            <div class="dashboard-mockup">
+            <div class="maintenance-box">
+                <div class="maintenance-icon">🧬</div>
+                <h3>The Scarcity Genesis is coming.</h3>
+                <p class="maintenance-status">Status: <span class="status-tag">Calibrating Hash Rate</span></p>
+                <p class="maintenance-text">We are fine-tuning the mining algorithms to ensure perfect distribution and long-term scarcity. The Genesis Block will be available to all holders once the network difficulty is balanced.</p>
+                
+                <div class="hype-stat-grid">
+                    <div class="hype-item">
+                        <span class="hype-label">Reward Pool</span>
+                        <span class="hype-val">600,000,000 $67</span>
+                    </div>
+                    <div class="hype-item">
+                        <span class="hype-label">Security</span>
+                        <span class="hype-val">LP BURNED 🔥</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <p class="tip">Join the circle of scarcity to get notified at launch.</p>
+                    <a href="https://t.me/sixtyseven_official" class="btn-connect" style="display: inline-block; text-decoration: none;">Join Official Telegram</a>
+                </div>
+            </div>
+
+            <!-- Dashboard Hidden for Launch Prep -->
+            <div class="dashboard-mockup" style="display: none !important;">
                 <div class="db-header">
                     <div class="db-title-wrap">
                         <h3>Protocol Dashboard</h3>
@@ -133,6 +156,10 @@
                         <span class="db-value">Genesis (v1.0)</span>
                     </div>
                     <div class="db-item">
+                        <span class="db-label">Your Mining Gear</span>
+                        <span class="db-value highlight" id="current-tier">Laptop Miner</span>
+                    </div>
+                    <div class="db-item">
                         <span class="db-label">Your Active Hash Rate</span>
                         <span class="db-value" id="hash-rate">0.00 H/s</span>
                     </div>
@@ -140,9 +167,29 @@
                         <span class="db-label">Accumulated Rewards</span>
                         <span class="db-value highlight" id="live-rewards">0.000000 $67</span>
                     </div>
-                    <div class="db-item">
-                        <span class="db-label">Next Halving In</span>
-                        <span class="db-value" id="halving-countdown">729d 23h 59m</span>
+                </div>
+
+                <div class="upgrade-section">
+                    <h4>🛠️ Hardware Upgrades</h4>
+                    <div class="upgrade-grid">
+                        <div class="upgrade-card" data-tier="2" data-cost="100">
+                            <h5>ASIC Station</h5>
+                            <span class="up-cost">Cost: 100 $67</span>
+                            <span class="up-benefit">10x Speed</span>
+                            <button class="btn-buy locked" onclick="buyUpgrade(2, 100)">Buy ASIC</button>
+                        </div>
+                        <div class="upgrade-card" data-tier="3" data-cost="500">
+                            <h5>Mining Farm</h5>
+                            <span class="up-cost">Cost: 500 $67</span>
+                            <span class="up-benefit">60x Speed</span>
+                            <button class="btn-buy locked" onclick="buyUpgrade(3, 500)">Build Farm</button>
+                        </div>
+                        <div class="upgrade-card" data-tier="4" data-cost="2500">
+                            <h5>Industrial Cluster</h5>
+                            <span class="up-cost">Cost: 2,500 $67</span>
+                            <span class="up-benefit">350x Speed</span>
+                            <button class="btn-buy locked" onclick="buyUpgrade(4, 2500)">Launch Cluster</button>
+                        </div>
                     </div>
                 </div>
 

@@ -39,6 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const TIERS = {
+        1: { name: "Laptop Miner", speed: 1.0 },
+        2: { name: "ASIC Station", speed: 10.0 },
+        3: { name: "Mining Farm", speed: 60.0 },
+        4: { name: "Industrial Cluster", speed: 350.0 },
+        5: { name: "Planet-Scale Grid", speed: 2300.0 }
+    };
+
+    let userTier = 1;
+
     function initSession(address) {
         userWallet = address;
         localStorage.setItem('67_wallet_address', userWallet);
@@ -52,16 +62,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedData = JSON.parse(localStorage.getItem(`67_data_${address}`)) || {
             rewards: 0,
             pending: 0,
+            tier: 1,
             lastVisit: Date.now()
         };
         
         accumulatedRewards = savedData.rewards;
+        userTier = savedData.tier || 1;
         let pendingRealRewards = savedData.pending || 0;
         
+        // UI Tier update
+        const tierDisplay = document.getElementById('current-tier');
+        if (tierDisplay) tierDisplay.innerText = TIERS[userTier].name;
+        updateUpgradeUI();
+
         // Calculate offline rewards
         const now = Date.now();
         const offlineTime = now - savedData.lastVisit;
-        const offlineGain = offlineTime * USER_MINING_RATE;
+        // Global Hash Rate (GHR) simulation: Increases over time (simulated difficulty)
+        const ghrFactor = Math.pow(1.000001, (now - 1773339736690) / 1000); // Very slow growth
+        const currentRate = (USER_MINING_RATE * TIERS[userTier].speed) / ghrFactor;
+        
+        const offlineGain = offlineTime * currentRate;
         accumulatedRewards += offlineGain;
         
         miningActive = true;
@@ -69,35 +90,98 @@ document.addEventListener('DOMContentLoaded', () => {
         startSimulation(pendingRealRewards);
     }
 
+    window.buyUpgrade = (tier, cost) => {
+        if (!miningActive || !userWallet) return;
+        if (accumulatedRewards < cost) {
+            alert("Not enough $67 Simulation Token!");
+            return;
+        }
+        if (tier <= userTier) {
+            alert("You already own this hardware or better!");
+            return;
+        }
+
+        accumulatedRewards -= cost;
+        userTier = tier;
+        
+        const tierDisplay = document.getElementById('current-tier');
+        if (tierDisplay) tierDisplay.innerText = TIERS[userTier].name;
+        
+        updateUpgradeUI();
+        updateHashRate();
+        
+        // Save immediately
+        saveState(pendingGlobalRewards); // pendingGlobalRewards is local to startSimulation, we need global access
+    };
+
+    function updateUpgradeUI() {
+        document.querySelectorAll('.upgrade-card').forEach(card => {
+            const tier = parseInt(card.dataset.tier);
+            const cost = parseInt(card.dataset.cost);
+            const btn = card.querySelector('.btn-buy');
+            
+            if (tier <= userTier) {
+                btn.innerText = "OWNED";
+                btn.classList.add('owned');
+                btn.classList.remove('locked');
+            } else if (accumulatedRewards < cost) {
+                btn.classList.add('locked');
+            } else {
+                btn.classList.remove('locked', 'owned');
+                btn.innerText = "BUY";
+            }
+        });
+    }
+
+    let pendingGlobalRewards = 0; // Move it outside for access
+    function saveState(pending) {
+        if (!userWallet) return;
+        localStorage.setItem(`67_data_${userWallet}`, JSON.stringify({
+            rewards: accumulatedRewards,
+            pending: pending,
+            tier: userTier,
+            lastVisit: Date.now()
+        }));
+    }
+
     function updateHashRate() {
         // ... (not needed to replace, but startSimulation needs the arg)
     }
 
     function startSimulation(initialPending) {
-        let pendingRealRewards = initialPending;
+        pendingGlobalRewards = initialPending;
         
         setInterval(() => {
+            // Maintenance Check: Don't mine if dashboard is hidden
+            const dashboard = document.querySelector('.dashboard-mockup');
+            if (!dashboard || dashboard.style.display === 'none') {
+                miningActive = false;
+                return;
+            }
+
             if (!miningActive) return;
             
             const now = Date.now();
             const elapsed = now - lastUpdateTimestamp;
             lastUpdateTimestamp = now;
             
-            const gain = elapsed * USER_MINING_RATE;
+            // Dynamic ROI Logic with GHR
+            const launchTimestamp = 1773339736690;
+            const hoursSinceLaunch = (now - launchTimestamp) / (1000 * 60 * 60);
+            const ghrDifficulty = Math.pow(1.002, hoursSinceLaunch); // 0.2% increase per hour
+            
+            const currentMiningRate = (USER_MINING_RATE * TIERS[userTier].speed) / ghrDifficulty;
+            const gain = elapsed * currentMiningRate;
             accumulatedRewards += gain;
 
             // --- REWARD RESET LOGIC ---
             if (accumulatedRewards >= 1000) {
-                pendingRealRewards += 10;
+                pendingGlobalRewards += 10;
                 accumulatedRewards -= 1000;
             }
             
             // Persist
-            localStorage.setItem(`67_data_${userWallet}`, JSON.stringify({
-                rewards: accumulatedRewards,
-                pending: pendingRealRewards,
-                lastVisit: now
-            }));
+            saveState(pendingGlobalRewards);
             
             // Update UI
             if (liveRewardsSpan) {
@@ -117,23 +201,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 poolProgress.style.width = `${Math.min(progressPercent + 1, 100)}%`;
             }
             
-            // Update Difficulty (Difficulty increases as pool drains = PH goes down)
+            // Update Hash Rate Display with Difficulty
             if (miningActive && hashRateSpan) {
-                const launchDateString = '2026-03-12T18:00:00Z';
-                const launchDate = new Date(launchDateString).getTime();
-                const totalElapsedSinceLaunch = now - launchDate;
-                const globalDrain = (totalElapsedSinceLaunch * NOMINAL_RATE_PER_MS * 12.5);
-                const progressFactor = globalDrain / TOTAL_MINING_REWARDS; 
+                const noise = Math.sin(now / 5000) * 0.1;
+                const baseHash = (4.2 * TIERS[userTier].speed) / ghrDifficulty;
+                const currentDisplayHash = baseHash + (noise * baseHash);
                 
-                // Base 4.2 PH/s, decreases as pool drains
-                const noise = Math.sin(now / 5000) * 0.3;
-                const difficultyLoss = progressFactor * 2.0; 
-                const currentHash = Math.max(4.2 + noise - difficultyLoss, 0.1);
-                
-                hashRateSpan.innerText = `${currentHash.toFixed(2)} PH/s`;
+                // Scale display
+                if (currentDisplayHash > 1000) {
+                    hashRateSpan.innerText = `${(currentDisplayHash / 1000).toFixed(2)} EH/s`;
+                } else {
+                    hashRateSpan.innerText = `${currentDisplayHash.toFixed(2)} PH/s`;
+                }
             }
             
-            // Update Milestone & Verification
+            // Update UI Elements
+            updateUpgradeUI();
+
             const milestoneStatus = document.getElementById('milestone-status');
             const pendingSpan = document.getElementById('pending-real-rewards');
             const hashSpan = document.getElementById('verification-hash');
@@ -143,21 +227,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const progress = ((accumulatedRewards / 1000) * 100).toFixed(1);
                 milestoneStatus.innerText = `${progress}% to next tier`;
             }
-            if (pendingSpan) pendingSpan.innerText = `${pendingRealRewards} $67`;
+            if (pendingSpan) pendingSpan.innerText = `${pendingGlobalRewards} $67`;
             
             let currentVCode = "---";
             if (userWallet) {
-                // Verification Code: Simple hash-like string of wallet + pending
-                currentVCode = btoa(userWallet.slice(0, 8) + pendingRealRewards).slice(0, 12).toUpperCase();
+                currentVCode = btoa(userWallet.slice(0, 8) + pendingGlobalRewards).slice(0, 12).toUpperCase();
                 if (hashSpan) hashSpan.innerText = `67-V-${currentVCode}`;
             }
 
-            // Claim Button Logic
+            // Claim Logic
             if (claimBtn) {
-                if (pendingRealRewards > 0) {
+                if (pendingGlobalRewards > 0) {
                     claimBtn.classList.remove('disabled');
                     claimBtn.onclick = () => {
-                        const msg = encodeURIComponent(`Hi Admin! I want to claim my rewards.\n\nWallet: ${userWallet}\nPending: ${pendingRealRewards} $67\nID: 67-V-${currentVCode}`);
+                        const msg = encodeURIComponent(`Hi Admin! I want to claim my rewards.\n\nWallet: ${userWallet}\nPending: ${pendingGlobalRewards} $67\nID: 67-V-${currentVCode}`);
                         window.open(`https://t.me/your_telegram_link?text=${msg}`, '_blank');
                     };
                 } else {
@@ -166,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // ... (countdown logic)
             if (halvingSpan) {
                 const halvingDate = new Date('2028-03-12T20:00:00Z').getTime();
                 const diff = halvingDate - now;

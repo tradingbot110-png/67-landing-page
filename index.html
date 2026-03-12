@@ -113,16 +113,44 @@
     </section>
 
     <section id="mining" class="mining-section">
-        <h2>Mining Simulation</h2>
-        <div class="dashboard-mockup">
-            <div class="db-header">
-                <h3>Live Network Status</h3>
-                <span class="status-dot"></span>
-            </div>
-            <div class="db-grid">
-                <div class="db-item">
-                    <span class="db-label">Current Phase</span>
-                    <span class="db-value">Genesis (Pre-Halving)</span>
+        <div class="container">
+            <h2>Mining Simulation</h2>
+            <p class="section-desc">Connect your wallet to start simulating the $67 scarcity protocol rewards.</p>
+            
+            <div class="dashboard-mockup">
+                <div class="db-header">
+                    <div class="db-title-wrap">
+                        <h3>Protocol Dashboard</h3>
+                        <span class="status-dot"></span>
+                    </div>
+                    <button id="connect-wallet" class="btn-connect">Connect Phantom</button>
+                    <div id="wallet-address" class="wallet-info hidden"></div>
+                </div>
+                
+                <div class="db-grid">
+                    <div class="db-item">
+                        <span class="db-label">Network Phase</span>
+                        <span class="db-value">Genesis (v1.0)</span>
+                    </div>
+                    <div class="db-item">
+                        <span class="db-label">Your Active Hash Rate</span>
+                        <span class="db-value" id="hash-rate">0.00 H/s</span>
+                    </div>
+                    <div class="db-item">
+                        <span class="db-label">Accumulated Rewards</span>
+                        <span class="db-value highlight" id="live-rewards">0.000000 $67</span>
+                    </div>
+                    <div class="db-item">
+                        <span class="db-label">Next Halving In</span>
+                        <span class="db-value" id="halving-countdown">729d 23h 59m</span>
+                    </div>
+                </div>
+
+                <div class="mining-visual">
+                    <div class="progress-track">
+                        <div class="progress-bar" style="width: 15%"></div>
+                    </div>
+                    <span class="progress-label">Mining Pool: 600,000,000 $67 Remaining</span>
                 </div>
             </div>
         </div>

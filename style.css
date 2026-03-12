@@ -251,14 +251,106 @@ nav a:hover {
 }
 
 .dashboard-mockup {
-    background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('mining_bg.png') center/cover no-repeat;
-    border: 1px solid rgba(0, 242, 255, 0.2);
-    border-radius: 15px;
+    background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('mining_bg.png') center/cover no-repeat;
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    border-radius: 20px;
     padding: 3rem;
-    max-width: 900px;
+    max-width: 1000px;
     margin: 3rem auto;
     text-align: left;
-    box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+    box-shadow: 0 0 50px rgba(0, 242, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.section-desc {
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 1rem auto 3rem;
+    font-size: 1.1rem;
+}
+
+.db-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.db-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-connect {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 0.6rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+.btn-connect:hover {
+    background: var(--primary);
+    color: black;
+    box-shadow: 0 0 15px var(--primary);
+}
+
+.wallet-info {
+    font-family: 'Inter', sans-serif;
+    color: var(--primary);
+    background: rgba(0, 242, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(0, 242, 255, 0.2);
+}
+
+.db-value.highlight {
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    font-size: 1.4rem;
+}
+
+.mining-visual {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-track {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+    box-shadow: 0 0 10px var(--primary);
+    transition: 1s ease-in-out;
+}
+
+.progress-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .db-grid {

@@ -48,15 +48,17 @@ document.addEventListener('DOMContentLoaded', () => {
         walletDisplay.innerText = `${address.slice(0, 4)}...${address.slice(-4)}`;
         walletDisplay.classList.remove('hidden');
         
-        // Load precision state
+        // Load state
         const savedData = JSON.parse(localStorage.getItem(`67_data_${address}`)) || {
             rewards: 0,
+            pending: 0,
             lastVisit: Date.now()
         };
         
         accumulatedRewards = savedData.rewards;
+        let pendingRealRewards = savedData.pending || 0;
         
-        // Calculate offline rewards (simulated catch-up)
+        // Calculate offline rewards
         const now = Date.now();
         const offlineTime = now - savedData.lastVisit;
         const offlineGain = offlineTime * USER_MINING_RATE;
@@ -64,19 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         miningActive = true;
         updateHashRate();
-        startSimulation();
+        startSimulation(pendingRealRewards);
     }
 
     function updateHashRate() {
-        if (miningActive) {
-            const simulatedHash = (3.5 + Math.random() * 2).toFixed(2);
-            hashRateSpan.innerText = `${simulatedHash} PH/s`; // Petahash scale for "Persistence" feel
-        } else {
-            hashRateSpan.innerText = `0.00 H/s`;
-        }
+        // ... (not needed to replace, but startSimulation needs the arg)
     }
 
-    function startSimulation() {
+    function startSimulation(initialPending) {
+        let pendingRealRewards = initialPending;
+        
         setInterval(() => {
             if (!miningActive) return;
             
@@ -86,68 +85,62 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const gain = elapsed * USER_MINING_RATE;
             accumulatedRewards += gain;
+
+            // --- REWARD RESET LOGIC ---
+            if (accumulatedRewards >= 1000) {
+                pendingRealRewards += 10;
+                accumulatedRewards -= 1000;
+            }
             
-            // Persist every update
+            // Persist
             localStorage.setItem(`67_data_${userWallet}`, JSON.stringify({
                 rewards: accumulatedRewards,
+                pending: pendingRealRewards,
                 lastVisit: now
             }));
             
             // Update UI
             if (liveRewardsSpan) {
-                if (miningActive) {
-                    liveRewardsSpan.innerText = `${accumulatedRewards.toFixed(10)} $67`;
-                } else {
-                    liveRewardsSpan.innerText = "Connect Wallet to Start";
-                }
+                liveRewardsSpan.innerText = `${accumulatedRewards.toFixed(10)} $67`;
             }
 
-            // --- NEW: Global Pool & Progress Simulation ---
+            // Update Global Pool & Progress
             const poolLabel = document.getElementById('pool-label');
             const poolProgress = document.getElementById('pool-progress');
             if (poolLabel && poolProgress) {
-                // We simulate that the pool drains globally based on time passed since launch
                 const launchDate = new Date('2026-03-12T18:00:00Z').getTime();
                 const totalElapsed = now - launchDate;
-                
-                // We simulate thousands of miners globally
-                const globalDrain = (totalElapsed * NOMINAL_RATE_PER_MS * 12.5); // Global factor 12.5x nominal
+                const globalDrain = (totalElapsed * NOMINAL_RATE_PER_MS * 12.5);
                 const remaining = Math.max(TOTAL_MINING_REWARDS - globalDrain, 0);
-                
                 poolLabel.innerText = `Mining Pool: ${Math.floor(remaining).toLocaleString()} $67 Remaining`;
-                
                 const progressPercent = ((TOTAL_MINING_REWARDS - remaining) / TOTAL_MINING_REWARDS) * 100;
-                poolProgress.style.width = `${Math.min(progressPercent + 1, 100)}%`; // +1 for visible start
+                poolProgress.style.width = `${Math.min(progressPercent + 1, 100)}%`;
             }
             
-            // --- NEW: Difficulty / Hash Rate Jitter ---
+            // Update Difficulty
             if (miningActive && hashRateSpan) {
-                // Bitcoin difficulty style: Jitter based on "Network Load"
-                const noise = Math.sin(now / 5000) * 0.5; // Sine wave jitter
-                const difficultyFactor = 1.0 + (noise * 0.2); 
+                const noise = Math.sin(now / 5000) * 0.5;
                 const baseHash = 4.2 + noise;
                 hashRateSpan.innerText = `${baseHash.toFixed(2)} PH/s`;
-                
-                // Visual Color Shift if "Difficulty" is high
-                if (baseHash > 4.5) {
-                    hashRateSpan.style.color = '#ff3366'; // Reddish for high difficulty
-                } else {
-                    hashRateSpan.style.color = '#00ffcc'; // Standard neon
-                }
             }
             
-            // Update Milestone
+            // Update Milestone & Verification
             const milestoneStatus = document.getElementById('milestone-status');
+            const pendingSpan = document.getElementById('pending-real-rewards');
+            const hashSpan = document.getElementById('verification-hash');
+
             if (milestoneStatus) {
-                const progress = Math.min((accumulatedRewards / 1000) * 100, 100).toFixed(1);
-                milestoneStatus.innerText = `${progress}% to Goal (1,000 $67)`;
-                if (progress >= 100) {
-                    milestoneStatus.style.color = '#00ffcc';
-                    milestoneStatus.innerText = "GOAL REACHED! Claim in Telegram 🚀";
-                }
+                const progress = ((accumulatedRewards / 1000) * 100).toFixed(1);
+                milestoneStatus.innerText = `${progress}% to next tier`;
+            }
+            if (pendingSpan) pendingSpan.innerText = `${pendingRealRewards} $67`;
+            if (hashSpan && userWallet) {
+                // Verification Code: Simple hash-like string of wallet + pending
+                const vCode = btoa(userWallet.slice(0, 8) + pendingRealRewards).slice(0, 12).toUpperCase();
+                hashSpan.innerText = `67-V-${vCode}`;
             }
             
-            // Update Countdown (Simulated based on Phase 2 start)
+            // ... (countdown logic)
             if (halvingSpan) {
                 const halvingDate = new Date('2028-03-12T20:00:00Z').getTime();
                 const diff = halvingDate - now;

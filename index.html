@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="hero-image">
-            <img src="logo.png" alt="67 Logo" class="floating">
+            <img src="Logo klein.png" alt="67 Logo" class="floating">
         </div>
     </header>
 
@@ -112,112 +112,151 @@
         </div>
     </section>
 
-    <section id="mining" class="mining-section">
+    <section id="mining" class="mining-section" style="filter: blur(6px) brightness(0.4); pointer-events: none;">
         <div class="container">
-            <h2>$67 Mining Protocol</h2>
+            <h2>The Grid (Beta)</h2>
             
-            <div class="maintenance-box">
-                <div class="maintenance-icon">🧬</div>
-                <h3>The Scarcity Genesis is coming.</h3>
-                <p class="maintenance-status">Status: <span class="status-tag">Calibrating Hash Rate</span></p>
-                <p class="maintenance-text">We are fine-tuning the mining algorithms to ensure perfect distribution and long-term scarcity. The Genesis Block will be available to all holders once the network difficulty is balanced.</p>
+            <!-- Paywall Box / Authentication -->
+            <div id="paywall-box" class="maintenance-box" style="display: none;">
+                <div class="maintenance-icon">🔐</div>
+                <h3>Welcome to The Grid</h3>
+                <p class="maintenance-status">Status: <span class="status-tag" style="background: rgba(255, 60, 60, 0.2); border-color: #ff3c3c; color: #ff3c3c;">Disconnected</span></p>
+                <p class="maintenance-text">Connecting your wallet is <strong>100% FREE</strong>. Once inside, Miners start at <strong id="dynamic-entry-fee">calculating...</strong>. Connect your Phantom Wallet, pick your first Miner, and start earning real yield from the Virtual Grid!</p>
                 
-                <div class="hype-stat-grid">
+                <div class="hype-stat-grid" style="grid-template-columns: repeat(3, 1fr);">
                     <div class="hype-item">
-                        <span class="hype-label">Reward Pool</span>
-                        <span class="hype-val">600,000,000 $67</span>
+                        <span class="hype-label">Active Members</span>
+                        <span class="hype-val" id="stat-members">10</span>
                     </div>
                     <div class="hype-item">
-                        <span class="hype-label">Security</span>
-                        <span class="hype-val">LP BURNED 🔥</span>
+                        <span class="hype-label">Active Miners</span>
+                        <span class="hype-val" id="stat-miners">15</span>
+                    </div>
+                    <div class="hype-item">
+                        <span class="hype-label">Network Hashrate</span>
+                        <span class="hype-val" id="stat-hashrate" style="color:#00ff88;">340.5 EH/s</span>
                     </div>
                 </div>
                 
-                <div style="margin-top: 30px;">
-                    <p class="tip">Join the circle of scarcity to get notified at launch.</p>
-                    <a href="https://t.me/sixtyseven_official" class="btn-connect" style="display: inline-block; text-decoration: none;">Join Official Telegram</a>
+                <div style="margin-top: 30px; display: flex; gap: 1rem; justify-content: center; align-items: center; flex-direction: column;">
+                    <button id="btn-connect-phantom" class="btn-primary" style="font-size: 1.1rem; padding: 15px 40px; border-radius: 4px; border: 1px solid #7B2CBF; background: rgba(123, 44, 191, 0.2); box-shadow: 0 0 15px rgba(123, 44, 191, 0.4); text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease;">
+                        Connect Phantom
+                    </button>
+                    <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=GCDcDJEW25W4sNUdzC1YNr9ojbi1Cwof5AbVd2qTxA7A" class="tip-link" id="dynamic-buy-link" target="_blank" style="color: rgba(255,255,255,0.6); text-decoration: underline; font-size: 0.9rem;">Connecting to Jupiter...</a>
+                    <a href="#" id="btn-reset-demo" style="color: rgba(255, 60, 60, 0.6); text-decoration: underline; font-size: 0.8rem; margin-top: 10px;">Reset Demo Profile (Clear Local Storage)</a>
                 </div>
             </div>
 
-            <!-- Dashboard Hidden for Launch Prep -->
-            <div class="dashboard-mockup" style="display: none !important;">
-                <div class="db-header">
+            <!-- Dashboard Hidden by Default -->
+            <div id="grid-dashboard" class="dashboard-mockup" style="display: block;">
+                <div class="db-header" style="margin-bottom: 1.5rem; padding-bottom: 1rem;">
                     <div class="db-title-wrap">
-                        <h3>Protocol Dashboard</h3>
+                        <h3>The Grid Terminal</h3>
                         <span class="status-dot"></span>
                     </div>
-                    <button id="connect-wallet" class="btn-connect">Connect Phantom</button>
-                    <div id="wallet-address" class="wallet-info hidden"></div>
+                    <div id="wallet-address" class="wallet-info">
+                        Connected: <span>---</span><br>
+                        <small style="color:#00ff88; font-weight:bold" id="wallet-balance-display">Wallet Demo: 600,000,000 $67</small>
+                    </div>
+                    <button id="disconnect-wallet" class="btn-connect" style="background: rgba(255, 60, 60, 0.1); border-color: #ff3c3c; color: #ff3c3c;">Disconnect</button>
                 </div>
                 
-                <div class="db-grid">
+                <div class="db-grid" style="gap: 1.5rem; margin-top: 1rem;">
                     <div class="db-item">
-                        <span class="db-label">Network Phase</span>
-                        <span class="db-value">Genesis (v1.0)</span>
+                        <span class="db-label" style="margin-bottom: 8px; display: block;">Pending $67 Node Payout</span>
+                        <div style="margin-bottom: 2px;">
+                            <span class="db-value highlight" id="live-rewards" style="font-size: 1.8rem; line-height: 1; margin: 0; display: inline-block;">0.000000</span>
+                        </div>
+                        <span id="live-rewards-usd" style="font-size: 0.8rem; color: rgba(255,255,255,0.4); display: block; margin-bottom: 15px;">≈ $0.00000000 USD</span>
+                        <p style="font-size: 0.75rem; color: rgba(255,255,255,0.5); line-height: 1.3; margin-bottom: 12px;">Use pending yields + wallet balance to buy Miners, or claim to wallet.</p>
+                        <button id="claim-rewards" style="background: #fff; color: #000; padding: 6px 18px; font-size: 0.85rem; border: none; border-radius: 4px; font-weight: 600; cursor: not-allowed; opacity: 0.5; transition: all 0.3s ease; display: inline-block;">Claim</button>
                     </div>
-                    <div class="db-item">
-                        <span class="db-label">Your Mining Gear</span>
-                        <span class="db-value highlight" id="current-tier">Laptop Miner</span>
+                    <div class="db-item" style="text-align: center;">
+                        <span class="db-label" style="display: block; width: 100%;">Total Miners Active</span>
+                        <span class="db-value highlight" id="current-tier" style="color: #ff3c3c; display: inline-block;">0 Miners</span>
                     </div>
-                    <div class="db-item">
-                        <span class="db-label">Your Active Hash Rate</span>
-                        <span class="db-value" id="hash-rate">0.00 H/s</span>
-                    </div>
-                    <div class="db-item">
-                        <span class="db-label">Accumulated Rewards</span>
-                        <span class="db-value highlight" id="live-rewards">0.000000 $67</span>
+                    <div class="db-item" style="text-align: right;">
+                        <span class="db-label" style="display: block; width: 100%;">Your Active Hash Rate</span>
+                        <span class="db-value" id="hash-rate" style="display: inline-block;">0.00 H/s</span>
+                        
+                        <span class="db-label" style="margin-top: 10px; display: block; font-size: 0.75rem; color: rgba(255,255,255,0.5); width: 100%;">Global Network Hash Rate</span>
+                        <span class="db-value" id="dashboard-global-hashrate" style="font-size: 0.9rem; color: #00ff88; display: inline-block;">Calculating...</span>
+                        
+                        <span class="db-label" style="margin-top: 10px; display: block; font-size: 0.75rem; color: rgba(255,255,255,0.5); width: 100%;">
+                            Total Burned $67 
+                            <a href="https://solscan.io/token/GCDcDJEW25W4sNUdzC1YNr9ojbi1Cwof5AbVd2qTxA7A" target="_blank" style="color: #ff3c3c; text-decoration: underline; margin-left: 5px; font-size: 0.65rem;">(Verify on Solscan)</a>
+                        </span>
+                        <span class="db-value" style="font-size: 0.9rem; color: #ff3c3c; display: inline-block;">
+                            <span id="dashboard-global-burned">Calculating...</span>
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.6);" id="dashboard-user-burned">(You: 0)</span>
+                        </span>
                     </div>
                 </div>
 
-                <div class="upgrade-section">
-                    <h4>🛠️ Hardware Upgrades</h4>
-                    <div class="upgrade-grid">
-                        <div class="upgrade-card" data-tier="2" data-cost="100">
-                            <h5>ASIC Station</h5>
-                            <span class="up-cost">Cost: 100 $67</span>
-                            <span class="up-benefit">10x Speed</span>
-                            <button class="btn-buy locked" onclick="buyUpgrade(2, 100)">Buy ASIC</button>
-                        </div>
-                        <div class="upgrade-card" data-tier="3" data-cost="500">
-                            <h5>Mining Farm</h5>
-                            <span class="up-cost">Cost: 500 $67</span>
-                            <span class="up-benefit">60x Speed</span>
-                            <button class="btn-buy locked" onclick="buyUpgrade(3, 500)">Build Farm</button>
-                        </div>
-                        <div class="upgrade-card" data-tier="4" data-cost="2500">
-                            <h5>Industrial Cluster</h5>
-                            <span class="up-cost">Cost: 2,500 $67</span>
-                            <span class="up-benefit">350x Speed</span>
-                            <button class="btn-buy locked" onclick="buyUpgrade(4, 2500)">Launch Cluster</button>
+                <div class="dashboard-columns" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; margin-top: 1.5rem;">
+                    
+                    <!-- Left Column: Upgrades -->
+                    <div class="upgrade-section" style="margin-top: 0;">
+                        <h4>🛠️ Re-Invest & Hardware Upgrades</h4>
+                        <div class="upgrade-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="upgrade-card" data-tier="1">
+                                <h5>SixtySevenMiner S67</h5>
+                                <span class="up-cost" id="cost-tier-1">Cost: ~ $67</span>
+                                <span class="up-benefit">100.0 kH/s</span>
+                                <span class="up-owned" id="owned-tier-1" style="color:#00ff88; font-size:0.8rem; display:block; margin: 5px 0;">Owned: 0</span>
+                                <button class="btn-buy locked" onclick="buyUpgrade(1)">Deploy (Burn $67)</button>
+                            </div>
+                            <div class="upgrade-card" data-tier="2">
+                                <h5>SixtySevenMiner M67</h5>
+                                <span class="up-cost" id="cost-tier-2">Cost: ~ $67</span>
+                                <span class="up-benefit">1.10 MH/s</span>
+                                <span class="up-owned" id="owned-tier-2" style="color:#00ff88; font-size:0.8rem; display:block; margin: 5px 0;">Owned: 0</span>
+                                <button class="btn-buy locked" onclick="buyUpgrade(2)">Deploy (Burn $67)</button>
+                            </div>
+                            <div class="upgrade-card" data-tier="3">
+                                <h5>SixtySevenMiner L67</h5>
+                                <span class="up-cost" id="cost-tier-3">Cost: ~ $67</span>
+                                <span class="up-benefit">4.60 MH/s</span>
+                                <span class="up-owned" id="owned-tier-3" style="color:#00ff88; font-size:0.8rem; display:block; margin: 5px 0;">Owned: 0</span>
+                                <button class="btn-buy locked" onclick="buyUpgrade(3)">Deploy (Burn $67)</button>
+                            </div>
+                            <div class="upgrade-card" data-tier="4">
+                                <h5>SixtySevenMiner XL67</h5>
+                                <span class="up-cost" id="cost-tier-4">Cost: ~ $67</span>
+                                <span class="up-benefit">25.0 MH/s</span>
+                                <span class="up-owned" id="owned-tier-4" style="color:#00ff88; font-size:0.8rem; display:block; margin: 5px 0;">Owned: 0</span>
+                                <button class="btn-buy locked" onclick="buyUpgrade(4)">Deploy (Burn $67)</button>
+                            </div>
+                            <div class="upgrade-card" data-tier="5">
+                                <h5>SixtySevenMiner XXL67</h5>
+                                <span class="up-cost" id="cost-tier-5">Cost: ~ $67</span>
+                                <span class="up-benefit">135.0 MH/s</span>
+                                <span class="up-owned" id="owned-tier-5" style="color:#00ff88; font-size:0.8rem; display:block; margin: 5px 0;">Owned: 0</span>
+                                <button class="btn-buy locked" onclick="buyUpgrade(5)">Deploy (Burn $67)</button>
+                            </div>
+                            <div class="upgrade-card focus" data-tier="6">
+                                <h5>SixtySevenMiner XXXL67</h5>
+                                <span class="up-cost" id="cost-tier-6">Cost: ~ $67</span>
+                                <span class="up-benefit">300.0 MH/s</span>
+                                <span class="up-owned" id="owned-tier-6" style="color:#0bfff0; font-size:0.8rem; display:block; margin: 5px 0;">Owned: 0</span>
+                                <button class="btn-buy locked" onclick="buyUpgrade(6)">God Mode (Burn $67)</button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="mining-visual">
-                    <div class="progress-track">
-                        <div class="progress-bar" id="pool-progress" style="width: 1%"></div>
-                    </div>
-                    <span class="progress-label" id="pool-label">Mining Pool: 600,000,000 $67 Remaining</span>
-                </div>
-
-                <div class="milestone-box">
-                    <h4>🏆 Milestone Rewards</h4>
-                    <p>Every <strong>1,000</strong> Mined $67 earns you <strong>10 REAL $67 Tokens</strong>!</p>
-                    <div class="milestone-stats">
-                        <div class="ms-stat">
-                            <span>Pending Rewards:</span>
-                            <span id="pending-real-rewards" class="highlight">0 $67</span>
-                        </div>
-                        <div class="ms-stat">
-                            <span>Verification ID:</span>
-                            <span id="verification-hash" class="small-code">---</span>
+                    <!-- Right Column: Leaderboard -->
+                    <div class="sidebar-section" style="display: flex; flex-direction: column;">
+                        <!-- Mini Leaderboard -->
+                        <div class="leaderboard-box" style="margin-top: 0; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; flex: 1; display: flex; flex-direction: column;">
+                            <h4 style="margin-bottom: 1rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">🏆 Top 10 Network Dominance</h4>
+                            <div style="font-size: 0.85rem; color: #00ff88; margin-bottom: 0.8rem; font-family: 'Orbitron', sans-serif;">
+                                Your Rank: <strong id="user-rank-display" style="color:#fff;">Unranked</strong>
+                            </div>
+                            <ul id="leaderboard-list" style="list-style: none; padding: 0; margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.85rem; flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 10px; min-height: 0;">
+                                <!-- Injected by JS -->
+                            </ul>
                         </div>
                     </div>
-                    <div class="milestone-progress">
-                        <span id="milestone-status">0.0% to next tier</span>
-                    </div>
-                    <button id="claim-rewards" class="btn-claim disabled">Claim Rewards (Telegram)</button>
-                    <p class="claim-tip">Clicking Claim opens Telegram with your Verification ID.</p>
                 </div>
             </div>
         </div>
@@ -229,29 +268,29 @@
             <div class="roadmap-grid">
                 <div class="roadmap-item">
                     <span class="phase-tag">Phase 1</span>
-                    <h4>Genesis</h4>
+                    <h4>Genesis (Live)</h4>
                     <ul>
                         <li>Fair Launch on Raydium</li>
-                        <li>Liquidity Burned Forever</li>
-                        <li>Website & Litepaper Live</li>
+                        <li>100% Liquidity Burned</li>
+                        <li>Development of The Grid Engine</li>
                     </ul>
                 </div>
                 <div class="roadmap-item">
                     <span class="phase-tag">Phase 2</span>
-                    <h4>Persistence</h4>
+                    <h4>The Grid (Coming Soon)</h4>
                     <ul>
-                        <li>Mining Rewards Staking Live</li>
-                        <li>Community Growth $67</li>
-                        <li>DEX Tier 1 Applications</li>
+                        <li>Burn-To-Earn Mechanics Active</li>
+                        <li>Solana-Pegged Hardware Tiers</li>
+                        <li>Deflationary Supply Shock</li>
                     </ul>
                 </div>
                 <div class="roadmap-item">
                     <span class="phase-tag">Phase 3</span>
-                    <h4>Ascension</h4>
+                    <h4>Network Dominance</h4>
                     <ul>
-                        <li>CEX Listing (MEXC/Gate.io)</li>
+                        <li>DexScreener Updates & Burn Tracking</li>
                         <li>The 1st Halving Event</li>
-                        <li>Global Partnership Expansion</li>
+                        <li>Global Hashrate Wars</li>
                     </ul>
                 </div>
             </div>
@@ -263,6 +302,12 @@
     </footer>
 
     <script src="script.js"></script>
+
+<div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; pointer-events: none;">
+    <h1 class="glitch" data-text="THE GRID V2" style="font-family: 'Orbitron', sans-serif; font-size: 6rem; text-shadow: 0 0 30px #00ff88; color: #fff; margin: 0; font-weight: bold; letter-spacing: 2px;">THE GRID V2</h1>
+    <h3 style="font-family: 'Inter', sans-serif; color: #00ff88; font-size: 1.8rem; letter-spacing: 8px; margin-top: 10px; text-shadow: 0 0 15px rgba(0,255,136,0.5); text-transform: uppercase;">Upgrades in Progress</h3>
+</div>
+
 </body>
 
 </html>
